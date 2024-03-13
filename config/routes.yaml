@@ -7,4 +7,4 @@ index:
 
 voyages:
     path: /voyages
-    controller: App\Controller\VoyagesController::voyages
+    controller: App\Controller\VoyagesController::index

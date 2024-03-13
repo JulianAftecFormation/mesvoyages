@@ -21,7 +21,7 @@ class VoyagesController extends AbstractController{
      * @Route("/voyages", name="voyages")
      * @return Response
      */
-    public function voyages(): Response{
+    public function index(): Response{
         return $this->render("pages/voyages.html.twig");
     }
     //put your code here
