@@ -16,7 +16,11 @@ use Symfony\Component\Routing\Annotation\Route;
  * @author Toochi
  */
 class AccueilController extends AbstractController{
-    
+
+    /**
+     * @Route("/", name="accueil")
+     * @return Response
+     */
     public function index(): Response{
         return $this->render("pages\accueil.html.twig");
     }
