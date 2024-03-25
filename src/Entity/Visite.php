@@ -3,14 +3,22 @@
 namespace App\Entity;
 
 use App\Repository\VisiteRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
-#[ORM\Entity(repositoryClass: VisiteRepository::class)]
-class Visite
-{
+
+
+    #[ORM\Entity(repositoryClass: VisiteRepository::class)]
+    #[Vich\Uploadable]
+    class Visite
+{ 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -29,7 +37,7 @@ class Visite
     private ?string $pays = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $datecreation = null;
+    private ?DateTimeInterface $datecreation = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $note = null;
@@ -39,12 +47,22 @@ class Visite
 
     #[ORM\ManyToMany(targetEntity: Environnement::class)]
     private Collection $environnements;
+    
+    #[Vich\UploadableField(mapping: 'visites', fileNameProperty: 'imageName')]
+    #[Assert\Image(mimeTypes: ['image/jpeg', 'image/png'])]
+    private ?File $imageFile = null;
+    
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $imageName = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $updated_at = null;
+    
     public function __construct()
     {
         $this->environnements = new ArrayCollection();
     }
-
+ 
     public function getId(): ?int
     {
         return $this->id;
@@ -98,12 +116,12 @@ class Visite
         return $this;
     }
 
-    public function getDatecreation(): ?\DateTimeInterface
+    public function getDatecreation(): ?DateTimeInterface
     {
         return $this->datecreation;
     }
 
-    public function setDatecreation(?\DateTimeInterface $datecreation): static
+    public function setDatecreation(?DateTimeInterface $datecreation): static
     {
         $this->datecreation = $datecreation;
 
@@ -166,4 +184,40 @@ class Visite
 
         return $this;
     }
+
+    function getImageFile(): ?File {
+        return $this->imageFile;
+    }
+
+    function getImageName(): ?string {
+        return $this->imageName;
+    }
+
+    function setImageFile(?File $imageFile) {
+        $this->imageFile = $imageFile;
+        if ($this->imageFile instanceof UploadedFile){
+            $this->updated_at = new DateTime('now');
+        }
+        return $this;
+    }
+
+    function setImageName(?string $imageName) {
+        $this->imageName = $imageName;
+        return $this;
+    }
+
+    
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updated_at): static
+    {
+        $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+
 }
