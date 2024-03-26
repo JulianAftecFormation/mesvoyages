@@ -2,16 +2,19 @@
 
 namespace App\Entity;
 
+use App\Entity\Environnement;
 use App\Repository\VisiteRepository;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 
 
@@ -49,7 +52,6 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
     private Collection $environnements;
     
     #[Vich\UploadableField(mapping: 'visites', fileNameProperty: 'imageName')]
-    #[Assert\Image(mimeTypes: ['image/jpeg', 'image/png'])]
     private ?File $imageFile = null;
     
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -200,10 +202,16 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         }
         return $this;
     }
-
+/*
     function setImageName(?string $imageName) {
+        dd($imageName);
         $this->imageName = $imageName;
         return $this;
+    }
+*/
+    function setImageName(?string $imageName) {
+       $this->imageName = $imageName;
+       return $this;
     }
 
     
@@ -219,5 +227,27 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
         return $this;
     }
 
+    
+    /**
+     * @Assert\Callback
+     * @param ExecutionContextInterface $context
+     */
+    public function validate(ExecutionContextInterface $context){
+        $image = $this->getImageFile();
+        if($image != null && $image != ""){
+            $tailleImage = @getimagesize($image);
+            if(!($tailleImage==false)){
+                if($tailleImage[0]>1300 || $tailleImage[1]>1300){
+                    $context->buildViolation("Cette image est trop grande (1300x1300 max)")
+                            ->atPath('imageFile')
+                            ->addViolation();
+                }
+            }else{
+                $context->buildViolation("Ce n'est pas une image")
+                        ->atPath('imageFile')
+                        ->addViolation();
+            }
+        }
+    }
 
 }
