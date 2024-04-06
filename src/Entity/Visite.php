@@ -30,10 +30,11 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $ville = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $tempmin = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\GreaterThan(propertyPath:"tempmin")]
     private ?int $tempmax = null;
 
     #[ORM\Column(length: 50)]
@@ -43,6 +44,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
     private ?DateTimeInterface $datecreation = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Range(min: 0, max: 20)]
     private ?int $note = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
